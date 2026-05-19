@@ -83,12 +83,7 @@ body{display:flex;flex-direction:column;min-height:100vh;background:radial-gradi
 import { supabase } from '/js/supabase-client.js';
 import { toast } from '/js/app.js';
 
-// Already logged in?
-const {data:{session}} = await supabase.auth.getSession();
-if(session) window.location.href='/pages/dashboard.html';
-
-// Open register tab if hash says so
-if(location.hash==='#register') showTab('register');
+// ── Define all functions FIRST so buttons always work ──────────────
 
 window.showTab = function(tab){
   document.getElementById('pane-login').classList.toggle('hidden',tab!=='login');
@@ -100,7 +95,7 @@ window.showTab = function(tab){
 document.addEventListener('keydown',e=>{
   if(e.key!=='Enter')return;
   const isReg=!document.getElementById('pane-reg').classList.contains('hidden');
-  isReg?doRegister():doLogin();
+  isReg?window.doRegister():window.doLogin();
 });
 
 window.doLogin = async function(){
@@ -111,12 +106,17 @@ window.doLogin = async function(){
   err.classList.remove('show');
   if(!email||!pw){err.textContent='Email and password are required.';err.classList.add('show');return;}
   btn.classList.add('loading');btn.disabled=true;
-  const {data,error}=await supabase.auth.signInWithPassword({email,password:pw});
-  btn.classList.remove('loading');btn.disabled=false;
-  if(error){err.textContent=error.message;err.classList.add('show');return;}
-  const {data:p}=await supabase.from('profiles').select('role').eq('id',data.user.id).single();
-  toast('Welcome back!','success',1500);
-  setTimeout(()=>{window.location.href=p?.role==='admin'?'/pages/admin.html':'/pages/dashboard.html'},600);
+  try {
+    const {data,error}=await supabase.auth.signInWithPassword({email,password:pw});
+    btn.classList.remove('loading');btn.disabled=false;
+    if(error){err.textContent=error.message;err.classList.add('show');return;}
+    const {data:p}=await supabase.from('profiles').select('role').eq('id',data.user.id).single();
+    toast('Welcome back!','success',1500);
+    setTimeout(()=>{window.location.href=p?.role==='admin'?'/pages/admin.html':'/pages/dashboard.html'},600);
+  } catch(e) {
+    btn.classList.remove('loading');btn.disabled=false;
+    err.textContent=e.message||'Login failed. Please try again.';err.classList.add('show');
+  }
 };
 
 window.doRegister = async function(){
@@ -131,12 +131,30 @@ window.doRegister = async function(){
   if(pw.length<8){err.textContent='Password must be at least 8 characters.';err.classList.add('show');return;}
   if(pw!==confirm){err.textContent='Passwords do not match.';err.classList.add('show');return;}
   btn.classList.add('loading');btn.disabled=true;
-  const {error}=await supabase.auth.signUp({email,password:pw,options:{data:{name}}});
-  btn.classList.remove('loading');btn.disabled=false;
-  if(error){err.textContent=error.message;err.classList.add('show');return;}
-  toast('Account created! Redirecting…','success',2000);
-  setTimeout(()=>window.location.href='/pages/subscribe.html',1200);
+  try {
+    const {error}=await supabase.auth.signUp({email,password:pw,options:{data:{name}}});
+    btn.classList.remove('loading');btn.disabled=false;
+    if(error){err.textContent=error.message;err.classList.add('show');return;}
+    toast('Account created! Redirecting…','success',2000);
+    setTimeout(()=>window.location.href='/pages/subscribe.html',1200);
+  } catch(e) {
+    btn.classList.remove('loading');btn.disabled=false;
+    err.textContent=e.message||'Registration failed. Please try again.';err.classList.add('show');
+  }
 };
+
+// ── Now do the async init (wrapped in try-catch so it can't crash) ──
+
+try {
+  const {data:{session}} = await supabase.auth.getSession();
+  if(session) window.location.href='/pages/dashboard.html';
+} catch(e) {
+  console.warn('Session check failed:', e.message);
+}
+
+// Open register tab if hash says so
+if(location.hash==='#register') window.showTab('register');
+
 </script>
 </body>
 </html>
