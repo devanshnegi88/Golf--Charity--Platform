@@ -15,10 +15,6 @@
 .plan-option:hover{border-color:rgba(201,168,76,.3)}
 .plan-option.selected{border-color:var(--gold);background:rgba(201,168,76,.05);box-shadow:0 0 48px rgba(201,168,76,.12)}
 .pct-display-big{font-family:var(--f-display);font-size:3rem;font-weight:700;color:var(--gold);line-height:1}
-.mobile-nav{display:none;background:var(--bg2);border-bottom:1px solid var(--border);overflow-x:auto;padding:.4rem;gap:.25rem;white-space:nowrap}
-.score-entry{display:grid;grid-template-columns:1fr 1fr auto;gap:.75rem;align-items:flex-end;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r-lg);padding:1.25rem}
-.score-entry .form-group{margin-bottom:0}
-@media(max-width:700px){.mobile-nav{display:flex}.score-entry{grid-template-columns:1fr 1fr;grid-template-rows:auto auto}.score-entry .btn{grid-column:1/-1}}
 </style>
 </head>
 <body>
@@ -376,7 +372,7 @@ async function insertScore(score, date) {
 
   if (ins.error) {
     if (ins.error.code === '23505') toast('A score for this date already exists', 'error');
-    else toast(ins.error.message, 'error');
+    else toast('Unable to add score', 'error');
     return;
   }
   toast('Score added!', 'success');
@@ -412,7 +408,7 @@ window.saveEditScore = async function() {
   if (score < 1 || score > 45) { toast('Score must be 1-45', 'error'); return; }
   var r = await supabase.from('scores').update({ score: score, date: date })
     .eq('id', id).eq('user_id', SESSION.user.id);
-  if (r.error) { toast(r.error.message, 'error'); return; }
+  if (r.error) { toast('Unable to update score', 'error'); return; }
   toast('Score updated!', 'success');
   window.closeOverlay('edit-overlay');
   await loadScores();
@@ -537,7 +533,7 @@ window.submitProof = async function() {
   var r = await supabase.from('draw_winners').update({
     proof_url: url, proof_submitted_at: new Date().toISOString()
   }).eq('id', id).eq('user_id', SESSION.user.id);
-  if (r.error) { toast(r.error.message, 'error'); return; }
+  if (r.error) { toast('Unable to submit proof', 'error'); return; }
   toast('Proof submitted! Admin will review shortly.', 'success');
   window.closeOverlay('proof-overlay');
   loadWinnings();
@@ -572,7 +568,7 @@ window.pickCharity = function(id, el) {
 window.saveCharitySelection = async function() {
   if (!SEL_CHARITY) { toast('Select a charity first', 'error'); return; }
   var r = await supabase.from('profiles').update({ charity_id: SEL_CHARITY }).eq('id', SESSION.user.id);
-  if (r.error) { toast(r.error.message, 'error'); return; }
+  if (r.error) { toast('Unable to save charity choice', 'error'); return; }
   USER.charity_id = SEL_CHARITY;
   toast('Charity saved!', 'success');
 };
@@ -592,7 +588,7 @@ function updateCharityHint(pct, plan) {
 window.saveCharityPct = async function() {
   var pct = Number(document.getElementById('ch-pct-range').value);
   var r = await supabase.from('profiles').update({ charity_percent: pct }).eq('id', SESSION.user.id);
-  if (r.error) { toast(r.error.message, 'error'); return; }
+  if (r.error) { toast('Unable to save profile', 'error'); return; }
   USER.charity_percent = pct;
   toast('Contribution updated!', 'success');
 };

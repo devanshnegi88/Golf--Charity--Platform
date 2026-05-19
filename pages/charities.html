@@ -98,7 +98,7 @@
 <div id="toasts"></div>
 
 <script type="module">
-import { supabase, fmt£, fmtDate } from '/js/supabase-client.js';
+import { supabase, fmt, fmtDate } from '/js/supabase-client.js';
 import { renderNav, toast } from '/js/app.js';
 
 renderNav('#nav-right');
@@ -133,7 +133,7 @@ function renderSpotlight(){
         </div>`:''}
         <div class="flex items-center gap-md mt-lg flex-wrap">
           <button class="btn btn-gold btn-sm" onclick="openDetail('${f.id}')">Full Profile →</button>
-          <span class="text-xs text-jade font-bold">${fmt£(f.total_received)} raised to date</span>
+          <span class="text-xs text-jade font-bold">${fmt(f.total_received)} raised to date</span>
         </div>
       </div>
     </div>`;
@@ -153,7 +153,7 @@ function renderGrid(list){
         <h3 style="margin-bottom:.5rem">${c.name}</h3>
         <p class="text-sm" style="line-height:1.7">${c.description.slice(0,120)}…</p>
         <div class="flex items-center justify-between mt-md">
-          <span class="text-xs text-jade font-bold">${fmt£(c.total_received)} raised</span>
+          <span class="text-xs text-jade font-bold">${fmt(c.total_received)} raised</span>
           <span class="text-xs text-muted">View profile →</span>
         </div>
       </div>
@@ -175,7 +175,7 @@ window.openDetail=function(id){
   document.getElementById('det-img').alt=c.name;
   document.getElementById('det-mission').textContent=c.mission||'';
   document.getElementById('det-desc').textContent=c.description;
-  document.getElementById('det-raised').textContent=fmt£(c.total_received);
+  document.getElementById('det-raised').textContent=fmt(c.total_received);
   const wa=document.getElementById('det-website');
   wa.href=c.website||'#';wa.textContent=c.website||'—';
   const evEl=document.getElementById('det-events');
@@ -223,13 +223,13 @@ window.makeDonation=async function(){
   if(c){
     await supabase.from('charities').update({total_received:(c.total_received||0)+amt}).eq('id',currentId);
     c.total_received=(c.total_received||0)+amt;
-    document.getElementById('det-raised').textContent=fmt£(c.total_received);
+    document.getElementById('det-raised').textContent=fmt(c.total_received);
   }
 
   document.getElementById('donate-status').textContent='✓ Thank you for your donation!';
   document.getElementById('donate-status').style.color='var(--jade)';
   document.getElementById('donate-amount').value='';
-  toast(`Thank you! ${fmt£(amt)} donated to ${c?.name||'this charity'}.`,'success');
+  toast(`Thank you! ${fmt(amt)} donated to ${c?.name||'this charity'}.`,'success');
 };
 
 load();

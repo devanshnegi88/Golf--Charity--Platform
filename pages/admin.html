@@ -73,6 +73,15 @@
 
   </nav>
 
+  <!-- MOBILE NAV -->
+  <div class="mobile-nav" id="mobile-nav">
+    <button class="sb-item active" onclick="go('analytics')"><span class="sb-icon">📊</span>Analytics</button>
+    <button class="sb-item" onclick="go('users')"><span class="sb-icon">👥</span>Users</button>
+    <button class="sb-item" onclick="go('draws')"><span class="sb-icon">🎯</span>Draws</button>
+    <button class="sb-item" onclick="go('winners')"><span class="sb-icon">🏆</span>Winners</button>
+    <button class="sb-item" onclick="go('charities')"><span class="sb-icon">💚</span>Charities</button>
+  </div>
+
   <!-- APP -->
   <div class="app-shell">
 
@@ -341,13 +350,21 @@
       return new Date(date).toLocaleDateString();
     }
 
-    // ── PANEL NAVIGATION ────────────────────────────────────────
     window.go = function (panel) {
       ['analytics', 'users', 'draws', 'winners', 'charities'].forEach(p => {
         const el = document.getElementById(p + "-panel");
         if (el) el.style.display = "none";
       });
       document.getElementById(panel + "-panel").style.display = "block";
+      
+      document.querySelectorAll('.sb-item').forEach(btn => {
+        if (btn.getAttribute('onclick') === `go('${panel}')`) {
+          btn.classList.add('active');
+        } else if (btn.hasAttribute('onclick') && btn.getAttribute('onclick').startsWith('go(')) {
+          btn.classList.remove('active');
+        }
+      });
+
       if (panel === "users")     loadUsers();
       if (panel === "draws")     loadDraws();
       if (panel === "winners")   loadWinners();
@@ -382,7 +399,7 @@
       const { data, error } = await supabase.from("draws").select("*")
         .order("created_at", { ascending: false }).limit(5);
       const container = document.getElementById("recent-draws");
-      if (error) { container.innerHTML = `<p class="text-ember text-sm">Error: ${error.message}</p>`; return; }
+      if (error) { container.innerHTML = `<p class="text-ember text-sm">Unable to load draws</p>`; return; }
       if (!data?.length) { container.innerHTML = `<p class="text-muted text-sm">No draws yet</p>`; return; }
       container.innerHTML = data.map(d => `
         <div class="flex items-center justify-between" style="padding:.75rem 0;border-bottom:1px solid var(--border)">
@@ -400,7 +417,7 @@
         .select("*, profiles!user_id(name)")
         .order("created_at", { ascending: false }).limit(5);
       const container = document.getElementById("recent-winners");
-      if (error) { container.innerHTML = `<p class="text-ember text-sm">Error: ${error.message}</p>`; return; }
+      if (error) { container.innerHTML = `<p class="text-ember text-sm">Unable to load winners</p>`; return; }
       if (!data?.length) { container.innerHTML = `<p class="text-muted text-sm">No winners yet</p>`; return; }
       container.innerHTML = data.map(w => `
         <div class="flex items-center justify-between" style="padding:.75rem 0;border-bottom:1px solid var(--border)">
@@ -420,7 +437,7 @@
       const { data, error } = await supabase.from("profiles").select("*")
         .order("created_at", { ascending: false });
       if (error) {
-        tbody.innerHTML = `<tr><td colspan="6" class="text-center text-ember" style="padding:2rem">Error: ${error.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center text-ember" style="padding:2rem">Unable to load users</td></tr>`;
         return;
       }
       allUsers = data || [];
@@ -462,7 +479,7 @@
       if (!confirm("Delete this user profile? This cannot be undone.")) return;
       const { error } = await supabase.from("profiles").delete().eq("id", id);
       if (error) {
-        alert("Error: " + error.message);
+        alert("Unable to delete user");
       } else {
         alert("User deleted.");
         loadUsers();
@@ -475,7 +492,7 @@
       const { data, error } = await supabase.from("draws").select("*")
         .order("created_at", { ascending: false });
       if (error) {
-        tbody.innerHTML = `<tr><td colspan="4" class="text-center text-ember" style="padding:2rem">Error: ${error.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="4" class="text-center text-ember" style="padding:2rem">Unable to load draws</td></tr>`;
         return;
       }
       if (!data?.length) {
@@ -502,7 +519,7 @@
         if (status) q = q.eq("status", status);
         const { data, error } = await q;
         if (error) {
-          tbody.innerHTML = `<tr><td colspan="6" class="text-center text-ember" style="padding:2rem">Error: ${error.message}</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="6" class="text-center text-ember" style="padding:2rem">Unable to load winners</td></tr>`;
           return;
         }
         if (!data?.length) {
@@ -524,19 +541,19 @@
             </td>
           </tr>`).join("");
       } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="6" class="text-center text-ember" style="padding:2rem">Error: ${err.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center text-ember" style="padding:2rem">Unable to load</td></tr>`;
       }
     };
 
     window.verifyWinner = async function (id) {
       const { error } = await supabase.from("draw_winners").update({ status: "verified" }).eq("id", id);
-      if (error) { alert("Error: " + error.message); }
+      if (error) { alert("Unable to verify winner"); }
       else { alert("Winner verified."); loadWinners(document.getElementById("win-filter").value); }
     };
 
     window.rejectWinner = async function (id) {
       const { error } = await supabase.from("draw_winners").update({ status: "rejected" }).eq("id", id);
-      if (error) { alert("Error: " + error.message); }
+      if (error) { alert("Unable to reject winner"); }
       else { alert("Winner rejected."); loadWinners(document.getElementById("win-filter").value); }
     };
 
@@ -545,7 +562,7 @@
       const container = document.getElementById("charity-list");
       const { data, error } = await supabase.from("charities").select("*").order("name");
       if (error) {
-        container.innerHTML = `<p class="text-center text-ember py-lg">Error: ${error.message}</p>`;
+        container.innerHTML = `<p class="text-center text-ember py-lg">Unable to load charities</p>`;
         return;
       }
       if (!data?.length) {
@@ -574,402 +591,11 @@
       const mission = prompt("Enter mission description (optional):") || "";
       const { error } = await supabase.from("charities")
         .insert({ name: name.trim(), mission, total_received: 0 });
-      if (error) { alert("Error: " + error.message); }
+      if (error) { alert("Unable to add charity"); }
       else { alert("Charity added!"); loadCharities(); }
     };
 
     // ── INITIAL LOAD ────────────────────────────────────────────
-    loadAnalytics();
-
-  </script>
-
-</body>
-
-</html>
-
-    // FORMAT CURRENCY
-    function fmtCurrency(value) {
-
-      return new Intl.NumberFormat(
-        "en-GB",
-        {
-          style: "currency",
-          currency: "GBP"
-        }
-      ).format((value || 0) / 100);
-
-    }
-
-    // FORMAT DATE
-    function fmtDate(date) {
-
-      if (!date) return "-";
-
-      return new Date(date).toLocaleDateString();
-
-    }
-
-    // PANEL NAVIGATION
-    window.go = function (panel) {
-      // Hide all panels
-      const panels = ['analytics', 'users', 'draws', 'winners', 'charities'];
-      panels.forEach(p => {
-        const el = document.getElementById(p + "-panel");
-        if (el) el.style.display = "none";
-      });
-
-      // Show selected panel
-      document.getElementById(panel + "-panel").style.display = "block";
-
-      // Load data
-      if (panel === "users") loadUsers();
-      if (panel === "draws") loadDraws();
-      if (panel === "winners") loadWinners();
-      if (panel === "charities") loadCharities();
-    };
-
-    // ANALYTICS
-    async function loadAnalytics() {
-
-      try {
-
-        const [
-          usersRes,
-          subsRes,
-          drawsRes,
-          winnersRes,
-          paymentsRes
-        ] = await Promise.all([
-
-          supabase
-            .from("profiles")
-            .select("*", {
-              count: "exact",
-              head: true
-            }),
-
-          supabase
-            .from("subscriptions")
-            .select("*", {
-              count: "exact",
-              head: true
-            })
-            .eq("status", "active"),
-
-          supabase
-            .from("draws")
-            .select("*", {
-              count: "exact",
-              head: true
-            }),
-
-          supabase
-            .from("draw_winners")
-            .select("*", {
-              count: "exact",
-              head: true
-            })
-            .eq("status", "pending"),
-
-          supabase
-            .from("payments")
-            .select("amount_pence")
-
-        ]);
-
-        const totalRevenue = (paymentsRes.data || []).reduce(
-          (sum, item) => sum + (item.amount_pence || 0),
-          0
-        );
-
-        document.getElementById("total-users").textContent =
-          usersRes.count || 0;
-
-        document.getElementById("active-subscribers").textContent =
-          subsRes.count || 0;
-
-        document.getElementById("total-draws").textContent =
-          drawsRes.count || 0;
-
-        document.getElementById("pending-winners").textContent =
-          winnersRes.count || 0;
-
-        document.getElementById("total-revenue").textContent =
-          fmtCurrency(totalRevenue);
-
-        loadRecentDraws();
-        loadRecentWinners();
-
-      } catch (err) {
-
-        console.error("Analytics error:", err);
-
-      }
-
-    }
-
-    // RECENT DRAWS
-    async function loadRecentDraws() {
-
-      const { data, error } = await supabase
-        .from("draws")
-        .select("*")
-        .order("created_at", {
-          ascending: false
-        })
-        .limit(5);
-
-      const container = document.getElementById("recent-draws");
-      if (error) {
-        console.error(error);
-        container.innerHTML = `<p class="text-ember text-sm">Error: ${error.message}</p>`;
-        return;
-      }
-
-      if (!data?.length) {
-
-        container.innerHTML = `
-          <p class="text-muted text-sm">
-            No draws found
-          </p>
-        `;
-
-        return;
-      }
-
-      container.innerHTML = data.map(draw => `
-        <div
-          class="flex items-center justify-between"
-          style="padding:0.75rem 0;border-bottom:1px solid var(--border)"
-        >
-
-          <div>
-
-            <div class="font-bold">
-              ${draw.month}
-            </div>
-
-            <div class="text-xs text-muted">
-              ${draw.draw_type}
-            </div>
-
-          </div>
-
-          <div class="text-gold font-bold">
-            ${fmtCurrency(draw.prize_pool_total)}
-          </div>
-
-        </div>
-      `).join("");
-
-    }
-
-    // RECENT WINNERS
-    async function loadRecentWinners() {
-
-      const { data, error } = await supabase
-        .from("draw_winners")
-        .select(`
-          *,
-          profiles!user_id(name)
-        `)
-        .order("created_at", {
-          ascending: false
-        })
-        .limit(5);
-
-      const container = document.getElementById("recent-winners");
-      if (error) {
-        console.error(error);
-        container.innerHTML = `<p class="text-ember text-sm">Error: ${error.message}</p>`;
-        return;
-      }
-
-      if (!data?.length) {
-
-        container.innerHTML = `
-          <p class="text-muted text-sm">
-            No winners found
-          </p>
-        `;
-
-        return;
-      }
-
-      container.innerHTML = data.map(winner => `
-        <div
-          class="flex items-center justify-between"
-          style="padding:0.75rem 0;border-bottom:1px solid var(--border)"
-        >
-
-          <div>
-
-            <div class="font-bold">
-              ${winner.profiles?.name || "Unknown"}
-            </div>
-
-            <div class="text-xs text-muted">
-              ${winner.match_count} Match
-            </div>
-
-          </div>
-
-          <div class="text-gold font-bold">
-            ${fmtCurrency(winner.prize_amount)}
-          </div>
-
-        </div>
-      `).join("");
-
-    }
-
-    // USERS
-    async function loadUsers() {
-
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .order("created_at", {
-          ascending: false
-        });
-
-      const tbody = document.getElementById("users-tbody");
-      if (error) {
-        console.error(error);
-        tbody.innerHTML = `<tr><td colspan="4" class="text-center text-ember" style="padding:2rem">Error: ${error.message}</td></tr>`;
-        return;
-      }
-
-      tbody.innerHTML = data.map(user => `
-        <tr>
-
-          <td>
-            ${user.name || "-"}
-          </td>
-
-          <td>
-            ${user.role}
-          </td>
-
-          <td>
-            ${user.charity_percent || 10}%
-          </td>
-
-          <td>
-            ${user.country || "-"}
-          </td>
-
-          <td>
-            ${fmtDate(user.created_at)}
-          </td>
-
-        </tr>
-      `).join("");
-
-    }
-
-    // DRAWS
-    async function loadDraws() {
-
-      const { data, error } = await supabase
-        .from("draws")
-        .select("*")
-        .order("created_at", {
-          ascending: false
-        });
-
-      const tbody = document.getElementById("draws-tbody");
-      if (error) {
-        console.error(error);
-        tbody.innerHTML = `<tr><td colspan="4" class="text-center text-ember" style="padding:2rem">Error: ${error.message}</td></tr>`;
-        return;
-      }
-
-      tbody.innerHTML = data.map(draw => `
-        <tr>
-
-          <td>
-            ${draw.month}
-          </td>
-
-          <td>
-            ${draw.draw_type}
-          </td>
-
-          <td>
-            ${draw.status}
-          </td>
-
-          <td>
-            ${fmtCurrency(draw.prize_pool_total)}
-          </td>
-
-        </tr>
-      `).join("") || '<tr><td colspan="4" class="text-center text-muted" style="padding:2rem">No draws</td></tr>';
-
-    }
-
-    // WINNERS
-    async function loadWinners(status = "") {
-      const tbody = document.getElementById("winners-tbody");
-      try {
-        let q = supabase.from("draw_winners").select("*, profiles!user_id(name), draws(month)").order("created_at", { ascending: false });
-        if (status) q = q.eq("status", status);
-        const { data, error } = await q;
-
-        if (error) {
-          console.error(error);
-          tbody.innerHTML = `<tr><td colspan="6" class="text-center text-ember" style="padding:2rem">Error: ${error.message}</td></tr>`;
-          return;
-        }
-
-        tbody.innerHTML = (data || []).map(w => `
-        <tr>
-          <td class="font-bold">${w.profiles?.name || "-"}</td>
-          <td class="text-sm text-muted">${w.draws?.month || "-"}</td>
-          <td><span class="badge badge-gold">${w.match_count}-Match</span></td>
-          <td class="font-bold">${fmtCurrency(w.prize_amount)}</td>
-          <td><span class="badge">${w.status}</span></td>
-          <td>
-            <div class="tbl-actions">
-              <button class="btn btn-panel btn-sm">Verify</button>
-            </div>
-          </td>
-        </tr>
-      `).join("") || '<tr><td colspan="6" class="text-center text-muted" style="padding:2rem">No winners</td></tr>';
-      } catch (err) {
-        console.error(err);
-        tbody.innerHTML = `<tr><td colspan="6" class="text-center text-ember" style="padding:2rem">Runtime Error: ${err.message}</td></tr>`;
-      }
-    }
-
-    // CHARITIES
-    async function loadCharities() {
-      const { data, error } = await supabase.from("charities").select("*").order("name");
-      const container = document.getElementById("charity-list");
-      if (error) {
-        console.error(error);
-        container.innerHTML = `<p class="text-center text-ember py-lg">Error: ${error.message}</p>`;
-        return;
-      }
-      container.innerHTML = (data || []).map(c => `
-        <div class="flex items-center justify-between py-md">
-          <div class="flex items-center gap-md">
-            <img src="${c.image_url || 'https://via.placeholder.com/40'}" style="width:40px;height:40px;object-fit:cover;border-radius:4px" />
-            <div>
-              <div class="font-bold">${c.name}</div>
-              <div class="text-xs text-muted">${c.mission || "No mission"}</div>
-            </div>
-          </div>
-          <div class="text-right">
-            <div class="font-bold text-jade">${fmtCurrency(c.total_received)}</div>
-            <div class="text-xs text-muted">Raised</div>
-          </div>
-        </div>
-      `).join("") || '<p class="text-center text-muted py-lg">No charities</p>';
-    }
-
-    // INITIAL LOAD
     loadAnalytics();
 
   </script>

@@ -477,7 +477,7 @@
   <div id="toasts"></div>
 
   <script type="module">
-    import { supabase, fmt£, fmtMonth } from '/js/supabase-client.js';
+    import { supabase, fmt, fmtMonth } from '/js/supabase-client.js';
     import { renderNav } from '/js/app.js';
 
     renderNav('#nav-right');
@@ -516,7 +516,7 @@
       <div class="stat-box"><div class="stat-label">3 Match</div><div class="stat-value" style="font-size:1.3rem">${fmt(d.match3_amount)}</div></div>
     </div>
   </div > `;
-  document.getElementById('stat-pool').innerHTML=`< em > ${ fmt£(d.match5_amount) }</em > `;
+  document.getElementById('stat-pool').innerHTML=`< em > ${ fmt(d.match5_amount) }</em > `;
 }
 
 // Featured charity
@@ -548,7 +548,7 @@ async function loadStats(){
   if(count)document.getElementById('stat-members').innerHTML=`< em > ${ count.toLocaleString() }</em > `;
   const {data:payments}=await supabase.from('payments').select('amount_pence').eq('type','charity_auto');
   const total=(payments||[]).reduce((s,p)=>s+(p.amount_pence||0),0);
-  if(total)document.getElementById('stat-charity').innerHTML=`< em > ${ fmt£(total) }</em > `;
+  if(total)document.getElementById('stat-charity').innerHTML=`< em > ${ fmt(total) }</em > `;
 }
 
 // Pricing
