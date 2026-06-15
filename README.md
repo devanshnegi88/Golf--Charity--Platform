@@ -1,5 +1,68 @@
 # Par4Good — Complete Full-Stack Golf Charity Platform
 
+<p align="center">
+
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
+![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-336791?style=for-the-badge&logo=postgresql&logoColor=white)
+![Stripe](https://img.shields.io/badge/Stripe-635BFF?style=for-the-badge&logo=stripe&logoColor=white)
+![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
+
+</p>
+
+<p align="center">
+<img src="https://skillicons.dev/icons?i=html,css,js,postgres,vercel" />
+</p>
+
+---
+
+## 🚀 Technology Stack
+
+<p align="center">
+<img src="https://skillicons.dev/icons?i=html,css,js,postgres,vercel" />
+</p>
+
+| Category | Technology |
+|-----------|------------|
+| 🎨 Frontend | HTML5, CSS3, JavaScript |
+| 🔐 Authentication | Supabase Auth |
+| 🗄 Database | PostgreSQL |
+| ⚡ Backend | Supabase Edge Functions |
+| 💳 Payments | Stripe |
+| 📧 Email | Resend |
+| ☁️ Hosting | Vercel |
+
+---
+
+## ✨ Core Features
+
+### ⛳ Golf Draw System
+
+![Draws](https://img.shields.io/badge/Monthly_Draws-Enabled-success?style=for-the-badge)
+![Prize Pool](https://img.shields.io/badge/Prize_Pool-Automated-blue?style=for-the-badge)
+![Winners](https://img.shields.io/badge/Winner_Verification-Integrated-orange?style=for-the-badge)
+
+### ❤️ Charity Contributions
+
+![Donations](https://img.shields.io/badge/Donations-Automatic-red?style=for-the-badge)
+![Charities](https://img.shields.io/badge/Charities-Multiple-green?style=for-the-badge)
+
+### 💳 Subscription Billing
+
+![Stripe Billing](https://img.shields.io/badge/Stripe_Billing-Integrated-635BFF?style=for-the-badge&logo=stripe)
+![Monthly](https://img.shields.io/badge/Monthly_Plan-Available-success?style=for-the-badge)
+![Yearly](https://img.shields.io/badge/Yearly_Plan-Available-success?style=for-the-badge)
+
+### 🔒 Security
+
+![Supabase Auth](https://img.shields.io/badge/Supabase_Auth-Enabled-success?style=for-the-badge)
+![RLS](https://img.shields.io/badge/Row_Level_Security-Enabled-success?style=for-the-badge)
+![Webhook Validation](https://img.shields.io/badge/Webhook_Verification-Enabled-success?style=for-the-badge)
+
+---
+
 > Play Golf. Give Back. Win Together.
 
 Built with **pure HTML + CSS + JS** (no build step), **Supabase** (Postgres + Auth + Edge Functions) and **Stripe** (subscriptions + billing portal). Deployed on **Vercel** in one click.
